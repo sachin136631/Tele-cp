@@ -1,0 +1,50 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.log
+*.sqlite3
+*.db
+
+# Virtual environment
+venv/
+env/
+ENV/
+.venv/
+.env/
+
+# Environment variables and secrets
+.env
+*.env
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+
+# Mac and Linux system files
+.DS_Store
+Thumbs.db
+
+# Byte-compiled / cache
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+
+# OS generated files
+ehthumbs.db
+Icon?
+.Spotlight-V100
+.Trashes
+
+# Local test or debug files
+*.bak
+*.tmp
+
+# FastAPI
+*.db-journal
+
+# Httpx cache or debug traces
+httpx_cache/
