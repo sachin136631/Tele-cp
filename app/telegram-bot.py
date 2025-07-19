@@ -41,7 +41,6 @@ async def report(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "description": description
     }
 
-
     async with httpx.AsyncClient() as client:
         try:
             res = await client.post(f"{API_URL}/report-bug", json=bug_payload)
@@ -52,7 +51,6 @@ async def report(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await update.message.reply_text(f"❌ Server error: {e.response.text}")
         except Exception as e:
             await update.message.reply_text(f"❌ Unexpected error: {e}")
-
 
 async def list_bugs(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
@@ -78,13 +76,60 @@ async def list_bugs(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await update.message.reply_text(f"❌ Unexpected error: {e}")
 
 
+async def update_bug(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if len(context.args) != 2:
+        await update.message.reply_text("⚠️ Usage: `/update <bug_id> <status>`", parse_mode='Markdown')
+        return
+
+    bug_id, status = context.args
+    try:
+        bug_id = int(bug_id)
+    except ValueError:
+        await update.message.reply_text("❌ Bug ID should be a number.")
+        return
+
+    async with httpx.AsyncClient() as client:
+        try:
+            res = await client.put(f"{API_URL}/bug/{bug_id}", params={"status": status})
+            res.raise_for_status()
+            await update.message.reply_text(f"✅ Bug {bug_id} updated to `{status}`", parse_mode="Markdown")
+        except httpx.HTTPStatusError as e:
+            await update.message.reply_text(f"❌ Server error: {e.response.text}")
+        except Exception as e:
+            await update.message.reply_text(f"❌ Unexpected error: {e}")
+
+async def delete_bug_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if len(context.args) != 1:
+        await update.message.reply_text("Usage: /delete <bug_id>")
+        return
+
+    bug_id = context.args[0]
+    if not bug_id.isdigit():
+        await update.message.reply_text("❌ Bug ID must be a number.")
+        return
+
+    async with httpx.AsyncClient() as client:
+        try:
+            res = await client.delete(f"{API_URL}/delete-bug/{bug_id}")
+            res.raise_for_status()
+            await update.message.reply_text(f"🗑️ Bug {bug_id} deleted successfully.")
+        except httpx.HTTPStatusError as e:
+            await update.message.reply_text(f"❌ Server error: {e.response.text}")
+        except Exception as e:
+            await update.message.reply_text(f"❌ Unexpected error: {e}")
+
+
 def main():
     if not BOT_TOKEN:
         raise Exception("TELEGRAM_BOT_TOKEN not set in environment")
+
     app = ApplicationBuilder().token(BOT_TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("report", report))
     app.add_handler(CommandHandler("list", list_bugs))
+    app.add_handler(CommandHandler("update", update_bug)) 
+    app.add_handler(CommandHandler("delete", delete_bug_cmd))
+
     print("🚀 Telegram bot running...")
     app.run_polling()
 

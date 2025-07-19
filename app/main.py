@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException,Path
 from sqlalchemy.orm import Session
 from app.database import SessionLocal, engine
 from app.models import Base, User, BugReport
@@ -17,7 +17,7 @@ def get_db():
     finally:
         db.close()
 
-# Endpoint to report a new bug
+
 @app.post("/report-bug")
 def report_bug(bug: BugReportCreate, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.telegram_id == bug.user_telegram_id).first()
@@ -44,7 +44,8 @@ def report_bug(bug: BugReportCreate, db: Session = Depends(get_db)):
         "status": new_bug.status
     }
 
-# Endpoint to list all bugs
+
+
 @app.get("/bugs")
 def list_bugs(db: Session = Depends(get_db)):
     bugs = db.query(BugReport).all()
@@ -57,7 +58,7 @@ def list_bugs(db: Session = Depends(get_db)):
         for bug in bugs
     ]
 
-# Endpoint to update a bug's status
+
 @app.put("/bug/{bug_id}")
 def update_bug_status(bug_id: int, status: str, db: Session = Depends(get_db)):
     bug = db.query(BugReport).filter(BugReport.id == bug_id).first()
@@ -67,7 +68,7 @@ def update_bug_status(bug_id: int, status: str, db: Session = Depends(get_db)):
     db.commit()
     return {"message": f"Bug {bug_id} updated to {status}"}
 
-# Endpoint to list bugs reported by a specific Telegram user
+
 @app.get("/user-bugs/{telegram_id}")
 def get_user_bugs(telegram_id: str, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.telegram_id == telegram_id).first()
@@ -87,3 +88,12 @@ def get_user_bugs(telegram_id: str, db: Session = Depends(get_db)):
         }
         for bug in bugs
     ]
+
+@app.delete("/delete-bug/{bug_id}")
+def delete_bug(bug_id: int, db: Session = Depends(get_db)):
+    bug = db.query(BugReport).filter(BugReport.id == bug_id).first()
+    if not bug:
+        raise HTTPException(status_code=404, detail="Bug not found")
+    db.delete(bug)
+    db.commit()
+    return {"detail": f"Bug {bug_id} deleted successfully"}
