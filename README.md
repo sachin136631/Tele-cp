@@ -1,0 +1,1 @@
+BugTracker Bot is a Telegram-powered, MCP-enabled bug reporting system using FastAPI, Redis, PostgreSQL, and Groq’s LLaMA-4. It captures reports via chat, stores context in Redis, summarizes using Groq, and persists data to PostgreSQL via a background worker—built entirely with Docker.
