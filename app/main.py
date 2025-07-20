@@ -3,9 +3,13 @@ from sqlalchemy.orm import Session
 from app.database import SessionLocal, engine
 from app.models import Base, User, BugReport
 from app.schemas import BugReportCreate
+import redis.asyncio as redis
+import json
+import os
 
 app = FastAPI()
-
+r=redis.from_url(os.getenv("REDIS_URL"))
+QUEUE_KEY="bug_queue"
 # Create tables
 Base.metadata.create_all(bind=engine)
 
@@ -97,3 +101,8 @@ def delete_bug(bug_id: int, db: Session = Depends(get_db)):
     db.delete(bug)
     db.commit()
     return {"detail": f"Bug {bug_id} deleted successfully"}
+
+@app.post("/enqueue-bug")
+async def enqueue_bug(bug: BugReportCreate):
+    await r.rpush(QUEUE_KEY,json.dumps(bug.model_dump()))
+    return {"message":"bug has been enqueued for processing"}

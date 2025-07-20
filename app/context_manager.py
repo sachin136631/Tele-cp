@@ -2,7 +2,7 @@ import redis.asyncio as redis
 import os
 import json
  
-r=redis.from_url(os.getenv("REDIS_URL"),decode_responses=True)
+r=redis.from_url(os.getenv("REDIS_URL"))
 
 async def add_message(user_id:str,message:str):
     key=f"ctx:{user_id}"

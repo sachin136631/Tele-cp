@@ -57,5 +57,17 @@ services:
     env_file:
       - .env
 
+  queue-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    container_name: queue-worker
+    depends_on:
+      - fastapi
+      - redis
+      - db
+    env_file:
+      - .env
+
 volumes:
   pgdata:

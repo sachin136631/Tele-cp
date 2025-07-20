@@ -43,10 +43,10 @@ async def report(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     async with httpx.AsyncClient() as client:
         try:
-            res = await client.post(f"{API_URL}/report-bug", json=bug_payload)
+            res = await client.post(f"{API_URL}/enqueue-bug", json=bug_payload)
             res.raise_for_status()
             data = res.json()
-            await update.message.reply_text(f"✅ Bug reported! Bug ID: {data['bug_id']}")
+            await update.message.reply_text(f"✅ Bug reported! bro")
         except httpx.HTTPStatusError as e:
             await update.message.reply_text(f"❌ Server error: {e.response.text}")
         except Exception as e:

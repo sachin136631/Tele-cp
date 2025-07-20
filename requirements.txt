@@ -1,7 +1,7 @@
 fastapi
 uvicorn
 python-telegram-bot
-redis
+redis>=5.0.0
 sqlalchemy
 psycopg2-binary
 groq
